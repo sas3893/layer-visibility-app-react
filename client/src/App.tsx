@@ -1,4 +1,5 @@
 import { gql, useQuery } from '@apollo/client';
+import LayerPanel from './components/LayerPanel';
 
 const GET_LAYERS = gql`
   query GetLayers($visible: Boolean, $search: String) {
@@ -12,29 +13,15 @@ const GET_LAYERS = gql`
   }
 `;
 
-const formatDate = (date: string | Date) =>
-  new Intl.DateTimeFormat('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(date));
-
 function App() {
-  const { data, loading } = useQuery(GET_LAYERS, {
+  const { data, loading, error } = useQuery(GET_LAYERS, {
     variables: { visible: true, search: 'Layer' },
   });
-  if (loading) return <p>Loading...</p>;
 
-  return (
-    <ul>
-      {data.layers.map((layer: any) => (
-        <li key={layer.id}>
-          {layer.name} - {layer.visible ? 'Visible' : 'Hidden'}
-          <br></br>
-          <span>{formatDate(layer.lastModified)}</span>
-        </li>
-      ))}
-    </ul>
-  );
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading layers</p>;
+
+  return <LayerPanel layers={data.layers} />;
 }
 
 export default App;
